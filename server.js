@@ -2,12 +2,82 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const server = http.createServer();
+const express = require('express');
+const app = express();
 
 const insults = [{"insult":"Were such things here as we do speak about? Or have we eaten on the insane root That takes the reason prisoner?","play":"Macbeth"},{"insult":"Never hung poison on a fouler toad","play":"Rickard III"},{"insult":"He thinks too much: such men are dangerous.","play":"Julius Ceasar"},{"insult":"Thou calledst me a dog before thou hadst a cause. But since I am a dog, beware my fangs.","play":"The Merchant of Venice"},{"insult":"Give me your hand...I can tell your fortune. You are a fool.","play":"The Two Noble Kinsmen"},{"insult":"He smells like a fish, a very ancient and fish-like smell, a kind of not-of-the-newest poor-John. A strange fish!","play":"The Tempest"},{"insult":"It is a tale Told by an idiot, full of sound and fury, Signifying nothing.","play":"Macbeth"},{"insult":"Alas, poor heart, that kiss is comfortless As frozen water to a starved snake","play":"Titus Andronicus"},{"insult":"He hath eaten me out of house and home; he hath put all substance into that fat belly of his.","play":"Henry IV, Part 2"},{"insult":"Out, you green-sickness carrion! Out, you baggage! You tallow-face!","play":"Romeo and Juliet"}]
 
-server.on('request', (request, response) => {
+// HTTP - modulen response.end()
+// Express - response.send()
+
+app.use(express.static('public'));
+
+//app.use(express.static('public')) matchar url:er och returnerar rätt fil istället för att
+//behöva göra nedanstående routes
+/*app.get('/', (request, response) => {
+    const src = fs.createReadStream('index.html');
+    src.pipe(response);
+});
+
+app.get('/style.css', (request, response) => {
+    const src = fs.createReadStream('style.css');
+    src.pipe(response);
+});
+
+app.get('/client.js', (request, response) => {
+    const src = fs.createReadStream('client.js');
+    src.pipe(response);
+});*/
+
+function findInsults(play) {
+    let result = [];
+
+    for(insult of insults) {
+        console.log('Compare: ', insult.play + ' ' + play);
+        if (insult.play === play) {
+            result.push(insult);
+        }
+    }
+
+    return result;
+}
+
+app.get('/api/getInsult', (request, response) => {
+    const index = Math.floor(Math.random() * insults.length);
+    response.send(JSON.stringify(insults[index]));
+});
+
+app.get('/api/getAll', (request, response) => {
+    response.send(JSON.stringify(insults))
+});
+
+app.get('/api/insults', (request, response) => {
+    const play = request.query.play;
+    const insults = findInsults(play);
+    response.send(JSON.stringify(insults));
+});
+
+app.get('/plays/:play', (request, response) => {
+    console.log('Param: ', request.params.play);
+    response.send(request.params.play);
+});
+
+app.get('/plays', (request, response) => {
+    console.log('Query: ', request.query);
+    response.send(request.query.play);s
+});
+
+app.listen(8000, () => {
+    console.log('Server started');
+});
+
+
+
+
+/*server.on('request', (request, response) => {
     console.log('Request: ', request.url);
-    //console.log('basename: ', path.basename(request.url));
+    console.log('basename: ', path.basename(request.url));
+    
 
     if (request.url === '/') {
         const src = fs.createReadStream('index.html');
@@ -34,7 +104,7 @@ server.on('request', (request, response) => {
                 response.end(JSON.stringify(obj));
             });
         })*/
-    } else {
+    /*} else {
         const baseUrl = path.basename(request.url);
         const src = fs.createReadStream(baseUrl);
 
@@ -49,3 +119,5 @@ server.on('request', (request, response) => {
 });
 
 server.listen(8000);
+*/
+
