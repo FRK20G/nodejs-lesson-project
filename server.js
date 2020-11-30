@@ -10,6 +10,11 @@ const insults = [{"insult":"Were such things here as we do speak about? Or have 
 // HTTP - modulen response.end()
 // Express - response.send()
 
+app.use((request, response, next) => {
+    console.log('A new request: ', request.url);
+    next();
+});
+
 app.use(express.static('public'));
 
 //app.use(express.static('public')) matchar url:er och returnerar rätt fil istället för att
@@ -64,7 +69,16 @@ app.get('/plays/:play', (request, response) => {
 
 app.get('/plays', (request, response) => {
     console.log('Query: ', request.query);
-    response.send(request.query.play);s
+    response.send(request.query.play);
+});
+
+app.use((request, response) => {
+    response.status(404).send('Hittade ingen sida');
+});
+
+app.use((error, request, response, next) => {
+    const obj = { success: false, message: 'Something went wrong'};
+    response.status(500).send(JSON.stringify(obj));
 });
 
 app.listen(8000, () => {
