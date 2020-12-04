@@ -1,10 +1,13 @@
 const searchButton = document.querySelector('#search');
 const queryInput = document.querySelector('#query');
 const insultsWrapper = document.querySelector('#insults');
+const addButton = document.querySelector('#add');
+const addInsultInput = document.querySelector('#add-insult');
+const addPlayInput = document.querySelector('#add-play');
 
 
 async function getInsult() {
-    const response = await fetch('http://localhost:8000/api/getInsult');
+    const response = await fetch('http://localhost:8000/api/insult', { method: 'GET' });
     const data = await response.json();
 
     console.log(data);
@@ -24,9 +27,21 @@ function displayInsults(insults) {
 }
 
 async function getInsultsFromQuery(query) {
-    const response = await fetch('http://localhost:8000/api/insults?play=' + query);
+    const response = await fetch('http://localhost:8000/api/insult/search?play=' + query);
     const data = await response.json();
     displayInsults(data);
+}
+
+async function postInsult(insultToPost) {
+    const response = await fetch('http://localhost:8000/api/insult', 
+    {
+        method: 'POST',
+        body: JSON.stringify(insultToPost),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    const data = await response.json();
 }
 
 searchButton.addEventListener('click', () => {
@@ -35,7 +50,29 @@ searchButton.addEventListener('click', () => {
     getInsultsFromQuery(query);
 });
 
+addButton.addEventListener('click', () => {
+    const insultValue = addInsultInput.value;
+    const playValue = addPlayInput.value;
+
+    const obj = {
+        insult: insultValue,
+        play: playValue
+    }
+
+    postInsult(obj);
+});
+
+
 getInsult();
+
+async function getInsults() {
+    const response = await fetch('http://localhost:8000/api/insult/all');
+    const data = await response.json();
+
+    console.log(data);
+}
+
+getInsults();
 
 
 /*async function getInsult2() {
